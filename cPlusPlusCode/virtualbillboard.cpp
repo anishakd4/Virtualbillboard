@@ -8,19 +8,22 @@ using namespace cv;
 
 int main(){
 
-    //Read both the book images
+    //Read the virtual billboard and banner images
     Mat virtualbillboard = imread("../assets/virtualbillboard.jpg");
-    Mat virtualbillboardClone = virtualbillboard.clone();
     Mat banner = imread("../assets/virtual_billboard_banner.jpg");
 
-    //These are the four corners of the book in both the images
+    //Creating a copy of virtual billboard image to work on
+    Mat virtualbillboardClone = virtualbillboard.clone();
+
     vector<Point2f> pts_billboard, pts_banner;
 
+    //four corners of the banner in the virtual billboard image to be replaced
     pts_billboard.push_back(Point2f(91, 56));
     pts_billboard.push_back(Point2f(224, 79));
     pts_billboard.push_back(Point2f(225, 158));
     pts_billboard.push_back(Point2f(89, 147));
 
+    //four corners of our banner
     pts_banner.push_back(Point2f(0, 0));
     pts_banner.push_back(Point2f(banner.size().width - 1, 0));
     pts_banner.push_back(Point2f(banner.size().width - 1, banner.size().height - 1));
@@ -34,13 +37,14 @@ int main(){
     //warp banner on to billboard image
     warpPerspective(banner, result, homographyMat, virtualbillboardClone.size());
 
+    //Black out the polygonal banner area in the virtual billboard image
     Point dstPoints[4];
     for(int i=0 ;i <4; i++){
         dstPoints[i] = pts_billboard[i];
     }
-
     fillConvexPoly(virtualbillboardClone, dstPoints, 4, Scalar(0), CV_AA);
 
+    //Add warped banner image to the virtual billboard image
     virtualbillboardClone = virtualbillboardClone + result;
 
     //create windows to show images
